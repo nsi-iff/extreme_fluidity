@@ -28,8 +28,9 @@ class Door(StateMachine):
     def enter_light(self):
         self.pass_light = True
 
-    def boom(self):
+    def boom(self, param=None):
         self.is_destroyed = True
+        self.boom_param = param
 
 
 class DoorWannabe(object):
@@ -77,4 +78,11 @@ class StateMachineConfiguratorSpec(unittest.TestCase):
         self.door_wannabe |should_not| respond_to('open')
         self.door_wannabe |should_not| respond_to('crack')
         self.door_wannabe |should_not| respond_to('close')
+
+    def it_runs_action_from_a_reference_on_another_object(self):
+        anyone = type('object', (), {})()
+        anyone.transition = self.door.crack
+        anyone.transition('own3d')
+        self.door.boom_param |should| equal_to('own3d')
+        self.door.current_state |should| equal_to('broken')
 
